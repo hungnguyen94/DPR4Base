@@ -161,10 +161,11 @@ void OdometryPublisher::updateOdometry() {
     if (dLeftDistance < 0 || dRightDistance < 0) {
         dTheta = -1*dTheta;
     }
-    if(radius == 0) {
+    /*if(radius == 0) {
        dTheta = 0;
-    }
-    if(dLeftDistance > 0 && dRightDistance < 0) {
+    }*/
+    //if(dLeftDistance > 0 && dRightDistance < 0) {
+    if(dLeftDistance > 0 && dRightDistance < 0 && radius != 0) {
        dTheta = -1*dTheta;
     }
 
@@ -173,7 +174,8 @@ void OdometryPublisher::updateOdometry() {
     dy = radius*sin(dTheta);
 
     // Corner to the right, invert angle and dx
-    if(dRightDistance < dLeftDistance) {
+    //if(dRightDistance < dLeftDistance) {
+    if(dRightDistance < dLeftDistance && radius != 0) {
         dTheta = -1*dTheta;
         dx = -1*dx;
     }

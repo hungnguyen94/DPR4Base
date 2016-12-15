@@ -103,6 +103,8 @@ void OdometryPublisher::updateOdometry() {
     double newRightPos = base->getRightPos();
     double dLeftPos = newLeftPos - leftPos;
     double dRightPos = newRightPos - rightPos;
+    
+    bool turnInPlace = false;
 
     std::cout << "dRightPos: " << dRightPos << std::endl;
 
@@ -142,6 +144,9 @@ void OdometryPublisher::updateOdometry() {
         radius = 0;
     } else {
         radius = base->getWheelBase() / 2.0 * ((dLeftDistance + dRightDistance) / (dLeftDistance - dRightDistance));
+        if (radius == 0){
+        	turnInPlace = true;
+        }
     }
     if(radius < 0) radius = -1*radius;
 
@@ -161,11 +166,12 @@ void OdometryPublisher::updateOdometry() {
     if (dLeftDistance < 0 || dRightDistance < 0) {
         dTheta = -1*dTheta;
     }
-    /*if(radius == 0) {
+    if(radius == 0 && !turnInPlace) {
        dTheta = 0;
-    }*/
-    //if(dLeftDistance > 0 && dRightDistance < 0) {
-    if(dLeftDistance > 0 && dRightDistance < 0 && radius != 0) {
+    }
+
+	//if (dLeftDistance > 0 && dRightDistance < 0){
+    if(dLeftDistance > 0 && dRightDistance < 0 && !turnInPlace) {
        dTheta = -1*dTheta;
     }
 
@@ -175,7 +181,7 @@ void OdometryPublisher::updateOdometry() {
 
     // Corner to the right, invert angle and dx
     //if(dRightDistance < dLeftDistance) {
-    if(dRightDistance < dLeftDistance && radius != 0) {
+    if(dRightDistance < dLeftDistance && !turnInPlace) {
         dTheta = -1*dTheta;
         dx = -1*dx;
     }

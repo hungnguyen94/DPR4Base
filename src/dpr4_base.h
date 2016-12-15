@@ -19,6 +19,9 @@ public:
 
     void move(double linearX, double angularZ);
     void moveCallback(const geometry_msgs::Twist::ConstPtr &msg);
+
+    double getLeftPos();
+    double getRightPos();
 };
 #endif //DPR4_BASE_DPR4_BASE_H
 

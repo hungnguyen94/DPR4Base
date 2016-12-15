@@ -9,10 +9,17 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "dpr4_base");
     ros::NodeHandle n;
+    double updateRate = 20;
 
     DPR4Base *base = new DPR4Base();
+    OdometryPublisher *odomPublisher = new OdometryPublisher();
     ros::Subscriber sub = n.subscribe("cmd_vel", 100, &DPR4Base::moveCallback, base);
 
-    ros::spin();
+    ros::Rate r(updateRate);
+    while(n.ok()) {
+        ros::spinOnce();
+        odomPublisher->publishOdometry();
+        r.sleep();
+    }
     return 0;
 }

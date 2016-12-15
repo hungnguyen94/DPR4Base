@@ -15,8 +15,14 @@ DPR4Base::DPR4Base()
 {
     // Todo: Set using arguments?
     std::string usbAddress = "/dev/ttyUSB0";
-    wheelBase = 0.537d;
-    wheelDiameter = 0.292d;
+
+    //Settings garbage robot:
+    // wheelBase = 0.537d;
+    // wheelDiameter = 0.292d;
+
+    // Settings host robot:
+    wheelBase = 29.3616564746d;
+    wheelBase = 54.3d;
 
     LxSerial *serialPort = new LxSerial();
     CDxlConfig *leftMotorConfig = new CDxlConfig();
@@ -86,4 +92,22 @@ void DPR4Base::moveCallback(const geometry_msgs::Twist::ConstPtr &msg)
     double angularZ = msg->angular.z;
     ROS_INFO("DPR4 base -> received linear x: %f, angular.z: %f", linearX, angularZ);
     move(linearX, angularZ);
+}
+
+/**
+ * Get the position of the left motor.
+ * @return - position of the left motor in radians.
+ */
+double getLeftPos() {
+   leftMotor->getPos();
+   return leftMotor->presentPos();
+}
+
+/**
+ * Get the position of the right motor.
+ * @return - position of the right motor in radians.
+ */
+double getRightPos() {
+   rightMotor->getPos();
+   return rightMotor->presentPos();
 }

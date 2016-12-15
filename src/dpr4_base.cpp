@@ -21,7 +21,7 @@ DPR4Base::DPR4Base()
     // wheelDiameter = 0.292d;
 
     // Settings host robot:
-    wheelBase = 29.3616564746d;
+    wheelDiameter = 29.3616564746d;
     wheelBase = 54.3d;
 
     LxSerial *serialPort = new LxSerial();

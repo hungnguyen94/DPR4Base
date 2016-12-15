@@ -10,7 +10,7 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "dpr4_base");
     ros::NodeHandle n;
-    double updateRate = 20;
+    double updateRate = 50;
 
     DPR4Base *base = new DPR4Base();
     OdometryPublisher *odomPublisher = new OdometryPublisher(base, n);

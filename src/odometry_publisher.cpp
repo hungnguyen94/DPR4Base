@@ -104,6 +104,8 @@ void OdometryPublisher::updateOdometry() {
     double dLeftPos = newLeftPos - leftPos;
     double dRightPos = newRightPos - rightPos;
 
+    std::cout << "dRightPos: " << dRightPos << std::endl;
+
     // left overflow
     if (myAbs(leftPos - newLeftPos) > overflowThreshold) {
         if(leftPos > 0) {
@@ -122,11 +124,15 @@ void OdometryPublisher::updateOdometry() {
         }
     }
 
+    std::cout << "dRightPos: " << dRightPos << std::endl;
+    std::cout << "getWheelDiameter: " << base->getWheelDiameter();
+
     // Calculate distances
     leftPos = newLeftPos;
     rightPos = newRightPos;
     double dLeftDistance = dLeftPos * base->getWheelDiameter() / 2.0d;
     double dRightDistance = dRightPos * base->getWheelDiameter() / 2.0d;
+    std::cout << "dRightDistance: " << dRightDistance << std::endl;
     leftDistance += dLeftDistance;
     rightDistance += dRightDistance;
 
@@ -152,14 +158,14 @@ void OdometryPublisher::updateOdometry() {
         dTheta = dRightDistance / (radius + (base->getWheelBase() /2.0));
     }
 
-    // Driving backwards, invert the angle
-    if (dLeftDistance < 0 || (dRightDistance < 0 && dLeftDistance >= 0)) {
+    if (dLeftDistance < 0 || dRightDistance < 0) {
         dTheta = -1*dTheta;
     }
-
-    // No radius, so no dTheta
     if(radius == 0) {
-        dTheta = 0;
+       dTheta = 0;
+    }
+    if(dLeftDistance > 0 && dRightDistance < 0) {
+       dTheta = -1*dTheta;
     }
 
     // Calculate the difference in dx and dy

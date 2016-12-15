@@ -9,8 +9,8 @@ OdometryPublisher::OdometryPublisher(DPR4Base *baseP, ros::NodeHandle n) {
     x = 0;
     y = 0;
     th = 0;
-    leftPos = 0;
-    rightPos = 0;
+    leftPos = base->getLeftPos();
+    rightPos = base->getRightPos();
     leftDistance = 0;
     rightDistance = 0;
 

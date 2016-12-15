@@ -3,6 +3,7 @@
 #include <geometry_msgs/Twist.h>
 
 #include "dpr4_base.h"
+#include "odometry_publisher.h"
 
 
 int main(int argc, char** argv)
@@ -12,7 +13,7 @@ int main(int argc, char** argv)
     double updateRate = 20;
 
     DPR4Base *base = new DPR4Base();
-    OdometryPublisher *odomPublisher = new OdometryPublisher();
+    OdometryPublisher *odomPublisher = new OdometryPublisher(base, n);
     ros::Subscriber sub = n.subscribe("cmd_vel", 100, &DPR4Base::moveCallback, base);
 
     ros::Rate r(updateRate);

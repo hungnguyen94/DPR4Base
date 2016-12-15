@@ -98,7 +98,7 @@ void DPR4Base::moveCallback(const geometry_msgs::Twist::ConstPtr &msg)
  * Get the position of the left motor.
  * @return - position of the left motor in radians.
  */
-double getLeftPos() {
+double DPR4Base::getLeftPos() {
    leftMotor->getPos();
    return leftMotor->presentPos();
 }
@@ -107,7 +107,23 @@ double getLeftPos() {
  * Get the position of the right motor.
  * @return - position of the right motor in radians.
  */
-double getRightPos() {
+double DPR4Base::getRightPos() {
    rightMotor->getPos();
    return rightMotor->presentPos();
+}
+
+/**
+ * Get the wheel diameter of the base.
+ * @return  - the diameter of the wheels
+ */
+double DPR4Base::getWheelDiameter() {
+    return wheelDiameter;
+}
+
+/**
+ * Get the wheel base length.
+ * @return  - the length of the wheel base
+ */
+double DPR4Base::getWheelBase() {
+    return wheelBase;
 }

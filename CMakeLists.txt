@@ -9,7 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   threemxl
-  nav_msg
+  nav_msgs
   rospy
   tf
 )
@@ -104,7 +104,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
+#  INCLUDE_DIRS include
   LIBRARIES dpr4_base
   CATKIN_DEPENDS geometry_msgs roscpp std_msgs threemxl
   DEPENDS system_lib

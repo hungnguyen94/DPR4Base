@@ -3,9 +3,8 @@
 /**
  * Constructor, initialises variables and node stuff;
  */
-OdometryPublisher::OdometryPublisher(DPR4Base *baseP, Nodehandle nP) {
+OdometryPublisher::OdometryPublisher(DPR4Base *baseP, ros::NodeHandle n) {
     base = baseP;
-    n = nP;
 
     ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 50);
     x = 0;
@@ -31,7 +30,7 @@ void OdometryPublisher::publishOdometry() {
     this->updateOdometry();
 
     // Calculate time interval
-    double curTime = ros::Time::now();
+    ros::Time curTime = ros::Time::now();
     double dt = (curTime - lastTime).toSec();
     lastTime = curTime;
 
@@ -40,7 +39,7 @@ void OdometryPublisher::publishOdometry() {
 
     // Transform for kinect, x is forwards, y left, z upwards.
     geometry_msgs::TransformStamped camera_trans;
-    camera_trans.header.stamp = current_time;
+    camera_trans.header.stamp = curTime;
     camera_trans.header.frame_id = "base_link";
     camera_trans.child_frame_id = "camera_depth_frame";
     camera_trans.transform.translation.x = 0.08;
@@ -56,7 +55,7 @@ void OdometryPublisher::publishOdometry() {
     // Transform for odom/base_link, x and y inverted because different axis
     // used in our calculations of odom.
     geometry_msgs::TransformStamped odom_trans;
-    odom_trans.header.stamp = current_time;
+    odom_trans.header.stamp = curTime;
     odom_trans.header.frame_id = "odom";
     odom_trans.child_frame_id = "base_link";
     odom_trans.transform.translation.x = y/100.0;
@@ -69,7 +68,7 @@ void OdometryPublisher::publishOdometry() {
 
     // The actual odom message
     nav_msgs::Odometry odom;
-    odom.header.stamp = current_time;
+    odom.header.stamp = curTime;
     odom.header.frame_id = "odom";
     odom.pose.pose.position.x = y/100.0;
     odom.pose.pose.position.y = -x/100.0;
@@ -107,28 +106,28 @@ void OdometryPublisher::updateOdometry() {
     double dRightPos = newRightPos - rightPos;
 
     // left overflow
-    if (myAbs(leftPos - newLeftPos) > overflow_threshold) {
+    if (myAbs(leftPos - newLeftPos) > overflowThreshold) {
         if(leftPos > 0) {
-            dLeftPos = dLeftPos + 2*overflow_point;
+            dLeftPos = dLeftPos + 2*overflowPoint;
         } else {
-            dLeftPos = dLeftPos - 2*overflow_point;
+            dLeftPos = dLeftPos - 2*overflowPoint;
         }
     }
 
     // right overflow
-    if (myAbs(rightPos - newRightPos) > overflow_threshold) {
+    if (myAbs(rightPos - newRightPos) > overflowThreshold) {
         if(rightPos > 0) {
-            dRightPos = dRightPos + 2*overflow_point;
+            dRightPos = dRightPos + 2*overflowPoint;
         } else {
-            dRightPos = dRightPos - 2*overflow_point;
+            dRightPos = dRightPos - 2*overflowPoint;
         }
     }
 
     // Calculate distances
     leftPos = newLeftPos;
     rightPos = newRightPos;
-    double dLeftDistance = dLeftPos*wheel_diameter/2.0d;
-    double dRightDistance = dRightPos*wheel_diameter/2.0d;
+    double dLeftDistance = dLeftPos * base->getWheelDiameter() / 2.0d;
+    double dRightDistance = dRightPos * base->getWheelDiameter() / 2.0d;
     leftDistance += dLeftDistance;
     rightDistance += dRightDistance;
 
@@ -137,22 +136,21 @@ void OdometryPublisher::updateOdometry() {
     if(myAbs(dLeftDistance - dRightDistance) < 0.00001d) {
         radius = 0;
     } else {
-        radius = wheel_base/2.0 * ((dLeftDistance + dRightDistance) / (dLeftDistance - dRightDistance));
+        radius = base->getWheelBase() / 2.0 * ((dLeftDistance + dRightDistance) / (dLeftDistance - dRightDistance));
     }
     if(radius < 0) radius = -1*radius;
 
     // Calculate theta from the radius
-    double dTheta;
     if(dLeftDistance > 0 || dLeftDistance < 0) {
         if((dRightDistance < dLeftDistance && dLeftDistance > 0) || (dLeftDistance < 0 && dRightDistance > dLeftDistance)) {
-            dTheta = dLeftDistance / (radius + (wheel_base/2.0));
+            dTheta = dLeftDistance / (radius + (base->getWheelBase() /2.0));
             if (logging) std::cout << "BUITENBOCHT" << std::endl;
         } else {
-            dTheta = dLeftDistance / (radius - (wheel_base/2.0));
+            dTheta = dLeftDistance / (radius - (base->getWheelBase() /2.0));
             if (logging) std::cout << "BINNENBOCHT" << std::endl;
         }
     } else {
-        dTheta = dRightDistance / (radius + (wheel_base/2.0));
+        dTheta = dRightDistance / (radius + (base->getWheelBase() /2.0));
     }
 
     // Driving backwards, invert the angle
@@ -166,8 +164,8 @@ void OdometryPublisher::updateOdometry() {
     }
 
     // Calculate the difference in dx and dy
-    double dx = radius*cos(dTheta) - radius;
-    double dy = radius*sin(dTheta);
+    dx = radius*cos(dTheta) - radius;
+    dy = radius*sin(dTheta);
 
     // Corner to the right, invert angle and dx
     if(dRightDistance < dLeftDistance) {

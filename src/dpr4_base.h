@@ -22,6 +22,9 @@ public:
 
     double getLeftPos();
     double getRightPos();
+
+    double getWheelDiameter();
+    double getWheelBase();
 };
 #endif //DPR4_BASE_DPR4_BASE_H
 

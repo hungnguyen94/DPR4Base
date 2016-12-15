@@ -7,6 +7,8 @@
 #include <threemxl/C3mxlROS.h>
 #include <threemxl/C3mxl.h>
 #include <math.h>
+#include "dpr4_base.h"
+#include <ros/ros.h>
 
 class OdometryPublisher {
 private:
@@ -16,7 +18,7 @@ private:
 	tf::TransformBroadcaster odom_broadcaster;
 
 	// Params that keep track of odom position
-	double x, y, th, leftPos, rightPos, leftDistance, rightDistance;
+	double x, y, th, dy, dx, dTheta, leftPos, rightPos, leftDistance, rightDistance;
     ros::Time lastTime;
     bool logging;
 
@@ -24,7 +26,7 @@ private:
     double myAbs(double);
     void updateOdometry();
 public:
-    OdometryPublisher(DPR4Base*, Nodehandle);
+    OdometryPublisher(DPR4Base*, ros::NodeHandle);
 
     void publishOdometry();
 };

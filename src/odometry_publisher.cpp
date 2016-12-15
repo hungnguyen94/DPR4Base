@@ -6,7 +6,6 @@
 OdometryPublisher::OdometryPublisher(DPR4Base *baseP, ros::NodeHandle n) {
     base = baseP;
 
-    ros::Publisher odom_pub = n.advertise<nav_msgs::Odometry>("odom", 50);
     x = 0;
     y = 0;
     th = 0;

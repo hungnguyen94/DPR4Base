@@ -212,7 +212,7 @@ void OdometryPublisher::updateOdometry() {
     }
     
     // Driving straight
-    if (dl == dr){
+    if (dLeftDistance == dRightDistance){
     	dx = 0;
     	dy = dLeftPos * base->getWheelDiameter();
     }

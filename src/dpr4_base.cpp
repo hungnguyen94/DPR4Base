@@ -56,6 +56,10 @@ DPR4Base::DPR4Base()
     ROS_DEBUG("Set 3mxl mode to \"SPEED\"");
     DXLC_SAFE_CALL(leftMotor->set3MxlMode(SPEED_MODE));
     DXLC_SAFE_CALL(rightMotor->set3MxlMode(SPEED_MODE));
+
+    ROS_DEBUG("Set acceleration");
+    DXLC_SAFE_CALL(leftMotor->setAcceleration(3));
+    DXLC_SAFE_CALL(rightMotor->setAcceleration(3));
 }
 
 /**

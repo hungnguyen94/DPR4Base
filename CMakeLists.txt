@@ -9,6 +9,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   threemxl
+  nav_msgs
+  rospy
+  tf
 )
 
 ## System dependencies are found with CMake's conventions
@@ -101,7 +104,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-  INCLUDE_DIRS include
+#  INCLUDE_DIRS include
   LIBRARIES dpr4_base
   CATKIN_DEPENDS geometry_msgs roscpp std_msgs threemxl
   DEPENDS system_lib
@@ -122,6 +125,7 @@ link_directories(${catkin_LIBRARY_DIRS})
 ## Declare a C++ library
 add_library(dpr4_base
   src/dpr4_base.cpp
+  src/odometry_publisher.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -130,7 +134,7 @@ add_library(dpr4_base
 # add_dependencies(dpr4_base ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(velocity_listener src/velocity_listener.cpp src/dpr4_base.cpp src/dpr4_base.h)
+add_executable(velocity_listener src/velocity_listener.cpp src/dpr4_base.cpp src/dpr4_base.h src/odometry_publisher.cpp src/odometry_publisher.h)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

@@ -15,8 +15,14 @@ DPR4Base::DPR4Base()
 {
     // Todo: Set using arguments?
     std::string usbAddress = "/dev/ttyUSB0";
-    wheelBase = 0.537d;
-    wheelDiameter = 0.292d;
+
+    //Settings garbage robot:
+    // wheelBase = 0.537d;
+    // wheelDiameter = 0.292d;
+
+    // Settings host robot:
+    wheelDiameter = 29.3616564746d;
+    wheelBase = 54.3d;
 
     LxSerial *serialPort = new LxSerial();
     CDxlConfig *leftMotorConfig = new CDxlConfig();
@@ -50,6 +56,10 @@ DPR4Base::DPR4Base()
     ROS_DEBUG("Set 3mxl mode to \"SPEED\"");
     DXLC_SAFE_CALL(leftMotor->set3MxlMode(SPEED_MODE));
     DXLC_SAFE_CALL(rightMotor->set3MxlMode(SPEED_MODE));
+
+    ROS_DEBUG("Set acceleration");
+    DXLC_SAFE_CALL(leftMotor->setAcceleration(3));
+    DXLC_SAFE_CALL(rightMotor->setAcceleration(3));
 }
 
 /**
@@ -86,4 +96,38 @@ void DPR4Base::moveCallback(const geometry_msgs::Twist::ConstPtr &msg)
     double angularZ = msg->angular.z;
     ROS_INFO("DPR4 base -> received linear x: %f, angular.z: %f", linearX, angularZ);
     move(linearX, angularZ);
+}
+
+/**
+ * Get the position of the left motor.
+ * @return - position of the left motor in radians.
+ */
+double DPR4Base::getLeftPos() {
+   leftMotor->getPos();
+   return leftMotor->presentPos();
+}
+
+/**
+ * Get the position of the right motor.
+ * @return - position of the right motor in radians.
+ */
+double DPR4Base::getRightPos() {
+   rightMotor->getPos();
+   return rightMotor->presentPos();
+}
+
+/**
+ * Get the wheel diameter of the base.
+ * @return  - the diameter of the wheels
+ */
+double DPR4Base::getWheelDiameter() {
+    return wheelDiameter;
+}
+
+/**
+ * Get the wheel base length.
+ * @return  - the length of the wheel base
+ */
+double DPR4Base::getWheelBase() {
+    return wheelBase;
 }

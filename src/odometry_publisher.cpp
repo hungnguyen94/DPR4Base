@@ -14,8 +14,8 @@ OdometryPublisher::OdometryPublisher(DPR4Base *baseP, ros::NodeHandle n) {
     leftDistance = 0;
     rightDistance = 0;
 
-    overflowPoint = 32.768d;
-    overflowThreshold = 50.0d;
+    overflowPoint = 32.768;
+    overflowThreshold = 50.0;
     logging = true;
 
     lastTime = ros::Time::now();
@@ -57,8 +57,8 @@ void OdometryPublisher::publishOdometry() {
     odom_trans.header.stamp = curTime;
     odom_trans.header.frame_id = "odom";
     odom_trans.child_frame_id = "base_link";
-    odom_trans.transform.translation.x = y/100.0;
-    odom_trans.transform.translation.y = -x/100.0;
+    odom_trans.transform.translation.x = y/100.0; // Convert to metres
+    odom_trans.transform.translation.y = -x/100.0; // Convert to metres
     odom_trans.transform.translation.z = 0.0;
     odom_trans.transform.rotation = odom_quat;
 
@@ -69,13 +69,13 @@ void OdometryPublisher::publishOdometry() {
     nav_msgs::Odometry odom;
     odom.header.stamp = curTime;
     odom.header.frame_id = "odom";
-    odom.pose.pose.position.x = y/100.0;
-    odom.pose.pose.position.y = -x/100.0;
+    odom.pose.pose.position.x = y/100.0; // Convert to metres
+    odom.pose.pose.position.y = -x/100.0; // Convert to metres
     odom.pose.pose.position.z = 0.0;
     odom.pose.pose.orientation = odom_quat;
     odom.child_frame_id = "base_link";
-    odom.twist.twist.linear.x = (dy/100.0) / dt;
-    odom.twist.twist.linear.y = (-dx/100.0) / dt;
+    odom.twist.twist.linear.x = (dy/100.0) / dt; // Convert to metres
+    odom.twist.twist.linear.y = (-dx/100.0) / dt; // Convert to metres
     odom.twist.twist.angular.z = dTheta / dt;
 
     // publish the message
@@ -143,12 +143,11 @@ void OdometryPublisher::updateOdometry() {
     if(myAbs(dLeftDistance - dRightDistance) < 0.00001d) {
         radius = 0;
     } else {
-        radius = base->getWheelBase() / 2.0 * ((dLeftDistance + dRightDistance) / (dLeftDistance - dRightDistance));
+        radius = myAbs(base->getWheelBase() / 2.0 * ((dLeftDistance + dRightDistance) / (dLeftDistance - dRightDistance)));
         if (radius == 0){
         	turnInPlace = true;
         }
     }
-    if(radius < 0) radius = -1*radius;
 
     // Calculate theta from the radius
     if(dLeftDistance > 0 || dLeftDistance < 0) {
@@ -199,17 +198,16 @@ void OdometryPublisher::updateOdometry() {
 
     // Log all the things
     if(logging) {
-        std::cout << "Leftpos: " << leftPos << std::endl;
-        std::cout << "Rightpos: " << rightPos << std::endl;
-        std::cout << "Left distance: " << leftDistance << std::endl;
-        std::cout << "Right distance: " << rightDistance << std::endl;
-        std::cout << "Radius: " << radius << std::endl;
-        std::cout << "dTheta: " << dTheta << std::endl;
-        std::cout << "dx: " << dx << std::endl;
-        std::cout << "x " << x << std::endl;
-        std::cout << "y " << y << std::endl;
-        std::cout << "th " << th << std::endl;
-        std::cout << "th " << 360 * (th / (2 * 3.1415)) << std::endl;
-        std::cout << "\n";
+        std::cout << "Leftpos: " << leftPos << "\n";
+        std::cout << "Rightpos: " << rightPos <<  "\n";
+        std::cout << "Left distance: " << leftDistance <<  "\n";
+        std::cout << "Right distance: " << rightDistance <<  "\n";
+        std::cout << "Radius: " << radius <<  "\n";
+        std::cout << "dTheta: " << dTheta <<  "\n";
+        std::cout << "dx: " << dx <<  "\n";
+        std::cout << "x " << x <<  "\n";
+        std::cout << "y " << y <<  "\n";
+        std::cout << "th " << th <<  "\n";
+        std::cout << "th " << 360 * (th / (2 * 3.1415)) << "\n" << std::endl;
     }
 }

@@ -149,6 +149,11 @@ void OdometryPublisher::updateOdometry() {
         }
     }
     if(radius < 0) radius = -1*radius;
+    
+    // Prevent infinite thetas when rotating in place
+    if (radius == base->getWheelBase()/2.0){
+        radius += 0.00001*base->getWheelDiameter();
+    }
 
     // Calculate theta from the radius
     if(dLeftDistance > 0 || dLeftDistance < 0) {
@@ -160,7 +165,11 @@ void OdometryPublisher::updateOdometry() {
             if (logging) std::cout << "BINNENBOCHT" << std::endl;
         }
     } else {
-        dTheta = dRightDistance / (radius + (base->getWheelBase() /2.0));
+    	if (dLeftDistance != 0){
+        	dTheta = dLeftDistance / (radius - (base->getWheelBase() /2.0));
+    	} else {
+    		dTheta = dRightDistance / (radius + (base->getWheelBase() /2.0));
+    	}
     }
 
     if (dLeftDistance < 0 || dRightDistance < 0) {
@@ -190,6 +199,21 @@ void OdometryPublisher::updateOdometry() {
     if (dLeftDistance < 0 || dRightDistance < 0) {
         dx = -1*dx;
         dy = -1*dy;
+    }
+    
+    // One side driving backwards
+    if ( (myAbs(dLeftDistance) < myAbs(dRightDistance)) && dLeftDistance < 0 && dRightDistance > 0){
+    	dx = -dx;
+    	dy = -dy;
+    } else if ( (myAbs(dLeftDistance) > myAbs(dRightDistance)) && dLeftDistance > 0 && dRightDistance < 0){
+    	dx = -dx;
+    	dy = -dy;
+    }
+    
+    // Driving straight
+    if (dl == dr){
+    	dx = 0;
+    	dy = dLeftPos * base->getWheelDiameter();
     }
 
     // Calculate odom coordinates

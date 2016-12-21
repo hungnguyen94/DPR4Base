@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   nav_msgs
   rospy
   tf
+  roslaunch
 )
 
 ## System dependencies are found with CMake's conventions
@@ -147,6 +148,8 @@ target_link_libraries(velocity_listener
   ${catkin_LIBRARIES}
 )
 
+roslaunch_add_file_check(launch)
+
 #############
 ## Install ##
 #############
@@ -176,11 +179,10 @@ target_link_libraries(velocity_listener
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
-# install(FILES
-#   # myfile1
+install(DIRECTORY launch
 #   # myfile2
-#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
-# )
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
 
 #############
 ## Testing ##

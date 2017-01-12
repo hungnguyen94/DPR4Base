@@ -1,4 +1,4 @@
 <launch>
-  <node pkg="dpr4_base" type="dpr4_base" name="velocity_listener" output="screen"/>
-  <node pkg="dpr4_base" type="dpr4_base" name="odometry_publisher" output="screen"/>
-</launch
+  <node pkg="dpr4_base" type="velocity_listener" name="velocity_listener" output="screen"/>
+  <!-- <node pkg="dpr4_base" type="dpr4_base" name="odometry_publisher" output="screen"/> -->
+</launch>

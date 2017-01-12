@@ -17,12 +17,12 @@ DPR4Base::DPR4Base()
     std::string usbAddress = "/dev/ttyUSB0";
 
     //Settings garbage robot:
-    // wheelBase = 0.537d;
-    // wheelDiameter = 0.292d;
+    wheelBase = 0.537d;
+    wheelDiameter = 0.292d;
 
     // Settings host robot:
-    wheelDiameter = 29.3616564746d;
-    wheelBase = 54.3d;
+    // wheelDiameter = 29.3616564746d;
+    // wheelBase = 54.3d;
 
     LxSerial *serialPort = new LxSerial();
     CDxlConfig *leftMotorConfig = new CDxlConfig();

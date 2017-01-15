@@ -16,7 +16,8 @@ OdometryPublisher::OdometryPublisher(DPR4Base *baseP, ros::NodeHandle n) {
 
     overflowPoint = 32.768;
     overflowThreshold = 50.0;
-    logging = true;
+    logging;
+    n.param<std::bool>("logging", sonar_lav, false);
 
     lastTime = ros::Time::now();
     odom_pub = n.advertise<nav_msgs::Odometry>("odom", 50);
@@ -33,22 +34,7 @@ void OdometryPublisher::publishOdometry() {
     double dt = (curTime - lastTime).toSec();
     lastTime = curTime;
 
-    // No rotation
-    geometry_msgs::Quaternion cam_quat = tf::createQuaternionMsgFromYaw(0.0);
-
-    // Transform for kinect, x is forwards, y left, z upwards.
-    geometry_msgs::TransformStamped camera_trans;
-    camera_trans.header.stamp = curTime;
-    camera_trans.header.frame_id = "base_link";
-    camera_trans.child_frame_id = "camera_depth_frame";
-    camera_trans.transform.translation.x = 0.08;
-    camera_trans.transform.translation.y = 0.0;
-    camera_trans.transform.translation.z = 0.2;
-    camera_trans.transform.rotation = cam_quat;
-
-    odom_broadcaster.sendTransform(camera_trans);
-
-    // Again, no rotation
+    // The rotation of the odom frame
     geometry_msgs::Quaternion odom_quat = tf::createQuaternionMsgFromYaw(th);
 
     // Transform for odom/base_link, x and y inverted because different axis
@@ -57,8 +43,8 @@ void OdometryPublisher::publishOdometry() {
     odom_trans.header.stamp = curTime;
     odom_trans.header.frame_id = "odom";
     odom_trans.child_frame_id = "base_link";
-    odom_trans.transform.translation.x = y/100.0; // Convert to metres
-    odom_trans.transform.translation.y = -x/100.0; // Convert to metres
+    odom_trans.transform.translation.x = x;
+    odom_trans.transform.translation.y = y;
     odom_trans.transform.translation.z = 0.0;
     odom_trans.transform.rotation = odom_quat;
 
@@ -69,17 +55,63 @@ void OdometryPublisher::publishOdometry() {
     nav_msgs::Odometry odom;
     odom.header.stamp = curTime;
     odom.header.frame_id = "odom";
-    odom.pose.pose.position.x = y/100.0; // Convert to metres
-    odom.pose.pose.position.y = -x/100.0; // Convert to metres
+    odom.pose.pose.position.x = x;
+    odom.pose.pose.position.y = y;
     odom.pose.pose.position.z = 0.0;
     odom.pose.pose.orientation = odom_quat;
     odom.child_frame_id = "base_link";
-    odom.twist.twist.linear.x = (dy/100.0) / dt; // Convert to metres
-    odom.twist.twist.linear.y = (-dx/100.0) / dt; // Convert to metres
+    odom.twist.twist.linear.x = dx / dt;
+    odom.twist.twist.linear.y = dy / dt;
     odom.twist.twist.angular.z = dTheta / dt;
 
     // publish the message
     odom_pub.publish(odom);
+}
+
+void OdometryPublisher::updateOdometry2() {
+  // Get new position of the motors
+  double newLeftPos = base->getLeftPos();
+  double newRightPos = base->getRightPos();
+  double dLeftPos = newLeftPos - leftPos;
+  double dRightPos = newRightPos - rightPos;
+
+  double dLeftDistance = this->calcDistanceTravelled(leftPos,base->getLeftPos());
+  double dRightDistance = this->calcDistanceTravelled(rightPos,base->getRightPos());;
+
+  double turningRadius = 0 ;
+  //Check if base is roting in place or driving straight to prevent dividing by zero
+  if(myAbs(dLeftDistance - dRightDistance) > 0.00001d) {
+      //The (optimalized) magic formula to calulate the turning radius
+      double turningRadius = (dRightDistance/2*dLeftDistance + 0.5d) * base->getWheelBase() / (dRightDistance/dLeftDistance - 1);
+  }
+
+  //The (optimalized) magic formula to calulate the angle the base travelled
+  double dTheta = dRightDistance / (turningRadius + base->getWheelBase()/2);
+  //Multiply the turning angle with -1 when the robot is driving backwards
+  if(dRightDistance < 0 && dLeftDistance<0) {dTheta *= -1;}
+
+  double dx = turningRadius * sin(dTheta);
+  double dy = turningRadius - turningRadius * cos(dTheta);
+  x += dx;
+  y += dy;
+  th += dTheta;
+}
+
+/**
+* Calculates the distance travelled by an wheel based on the current en previous wheel position.
+* TODO check if this method works as intended, copied from previous version.
+*
+*/
+double OdometryPublisher::calcDistanceTravelled(double prevPos, double curPos) {
+  double dpos = curpos - prevPos;
+  if (myAbs(dpos) > overflowThreshold) {
+      if(curPos > 0) {
+          dpos = dpos + 2*overflowPoint;
+      } else {
+          dpos = dpos - 2*overflowPoint;
+      }
+  }
+  return dpos * base->getWheelDiameter() / 2.0d;
 }
 
 /**
@@ -103,7 +135,7 @@ void OdometryPublisher::updateOdometry() {
     double newRightPos = base->getRightPos();
     double dLeftPos = newLeftPos - leftPos;
     double dRightPos = newRightPos - rightPos;
-    
+
     bool turnInPlace = false;
 
     std::cout << "dRightPos: " << dRightPos << std::endl;

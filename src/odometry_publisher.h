@@ -25,10 +25,11 @@ private:
     // Cause double abs is not a thing
     double myAbs(double);
     void updateOdometry();
+    void updateOdometry2();
+		double OdometryPublisher::calcDistanceTravelled(double, double)
 public:
     OdometryPublisher(DPR4Base*, ros::NodeHandle);
 
     void publishOdometry();
 };
 #endif //ODOMETRY_PUBLISHER_H
-

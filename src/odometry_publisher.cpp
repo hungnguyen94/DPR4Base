@@ -17,17 +17,17 @@ OdometryPublisher::OdometryPublisher(DPR4Base *baseP, ros::NodeHandle n) {
     overflowPoint = 32.768;
     overflowThreshold = 50.0;
     logging;
-    n.param<std::bool>("logging", sonar_lav, false);
+    n.param<bool>("logging", logging, false);
 
     lastTime = ros::Time::now();
-    odom_pub = n.advertise<nav_msgs::Odometry>("odom", 50);
+    odom_pub = n.advertise<nav_msgs::Odometry>("/odom", 50);
 }
 
 /**
  * Publish the odometry/transform messages
  */
 void OdometryPublisher::publishOdometry() {
-    this->updateOdometry();
+    this->updateOdometry2();
 
     // Calculate time interval
     ros::Time curTime = ros::Time::now();
@@ -72,11 +72,13 @@ void OdometryPublisher::updateOdometry2() {
   // Get new position of the motors
   double newLeftPos = base->getLeftPos();
   double newRightPos = base->getRightPos();
-  double dLeftPos = newLeftPos - leftPos;
-  double dRightPos = newRightPos - rightPos;
 
-  double dLeftDistance = this->calcDistanceTravelled(leftPos,base->getLeftPos());
-  double dRightDistance = this->calcDistanceTravelled(rightPos,base->getRightPos());;
+  double dLeftDistance = this->calcDistanceTravelled(leftPos,newLeftPos);
+  double dRightDistance = this->calcDistanceTravelled(rightPos,newRightPos);
+  leftPos = newLeftPos;
+  rightPos = newRightPos;
+leftDistance += dLeftDistance;
+rightDistance += dRightDistance;
 
   double turningRadius = 0 ;
   //Check if base is roting in place or driving straight to prevent dividing by zero
@@ -103,7 +105,7 @@ void OdometryPublisher::updateOdometry2() {
 *
 */
 double OdometryPublisher::calcDistanceTravelled(double prevPos, double curPos) {
-  double dpos = curpos - prevPos;
+  double dpos = curPos - prevPos;
   if (myAbs(dpos) > overflowThreshold) {
       if(curPos > 0) {
           dpos = dpos + 2*overflowPoint;

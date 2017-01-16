@@ -26,7 +26,7 @@ private:
     double myAbs(double);
     void updateOdometry();
     void updateOdometry2();
-		double OdometryPublisher::calcDistanceTravelled(double, double)
+    double calcDistanceTravelled(double, double);
 public:
     OdometryPublisher(DPR4Base*, ros::NodeHandle);
 

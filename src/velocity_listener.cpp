@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 
     DPR4Base *base = new DPR4Base();
     OdometryPublisher *odomPublisher = new OdometryPublisher(base, n);
-    ros::Subscriber sub = n.subscribe("cmd_vel", 100, &DPR4Base::moveCallback, base);
+    ros::Subscriber sub = n.subscribe("/cmd_vel", 100, &DPR4Base::moveCallback, base);
 
     ros::Rate r(updateRate);
     while(n.ok()) {

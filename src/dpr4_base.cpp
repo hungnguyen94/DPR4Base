@@ -79,7 +79,7 @@ void DPR4Base::move(double linearX, double angularZ)
     double leftSpeed = leftVelocity;
     double rightSpeed = rightVelocity;
 
-    ROS_INFO("DPR4 base -> set speed, leftVelocity: %f, rightVelocity: %f", leftSpeed, rightSpeed);
+//    ROS_INFO("DPR4 base -> set speed, leftVelocity: %f, rightVelocity: %f", leftSpeed, rightSpeed);
 
     DXLC_SAFE_CALL(leftMotor->setSpeed(leftSpeed));
     DXLC_SAFE_CALL(rightMotor->setSpeed(rightSpeed));
@@ -94,7 +94,7 @@ void DPR4Base::moveCallback(const geometry_msgs::Twist::ConstPtr &msg)
 {
     double linearX = msg->linear.x;
     double angularZ = msg->angular.z;
-    ROS_INFO("DPR4 base -> received linear x: %f, angular.z: %f", linearX, angularZ);
+  //  ROS_INFO("DPR4 base -> received linear x: %f, angular.z: %f", linearX, angularZ);
     move(linearX, angularZ);
 }
 

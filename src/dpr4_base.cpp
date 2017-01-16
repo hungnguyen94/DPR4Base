@@ -69,8 +69,8 @@ DPR4Base::DPR4Base()
  */
 void DPR4Base::move(double linearX, double angularZ)
 {
-    double linearVelocity  = linearX / (wheelDiameter / 2.0);
-    double angularVelocity = angularZ * (wheelBase / wheelDiameter);
+    double linearVelocity  = linearX / ((wheelDiameter/100) / 2.0);
+    double angularVelocity = angularZ * ((wheelBase/100) / (wheelDiameter/100));
 
     double leftVelocity = linearVelocity - angularVelocity;
     double rightVelocity = linearVelocity + angularVelocity;

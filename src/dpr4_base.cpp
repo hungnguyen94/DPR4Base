@@ -8,58 +8,64 @@
         } \
     } while (0)
 
+bool hostRobot = true;
+
 /**
  * Constructor
  */
-DPR4Base::DPR4Base()
+DPR4Base::DPR4Base(ros::NodeHandle *nh)
 {
     // Todo: Set using arguments?
     std::string usbAddress = "/dev/ttyUSB0";
 
-    //Settings garbage robot:
-    // wheelBase = 0.537d;
-    // wheelDiameter = 0.292d;
-
-    // Settings host robot:
-    wheelDiameter = 29.3616564746d;
-    wheelBase = 54.3d;
+    if(!hostRobot) {
+        //Settings garbage robot:
+        wheelBase = 0.537d;
+        wheelDiameter = 0.292d;
+    } else {
+        // Settings host robot:
+        wheelDiameter = 29.3616564746d;
+        wheelBase = 54.3d;
+    }
 
     LxSerial *serialPort = new LxSerial();
-    CDxlConfig *leftMotorConfig = new CDxlConfig();
-    CDxlConfig *rightMotorConfig = new CDxlConfig();
-
     serialPort->port_open(usbAddress, LxSerial::RS485_FTDI);
     serialPort->set_speed(LxSerial::S921600);
 
-    leftMotor = new C3mxl();
-    rightMotor = new C3mxl();
+    spineListener = new SpineListener(nh, serialPort);
+    /**CDxlConfig *leftMotorConfig = new CDxlConfig();
+    # CDxlConfig *rightMotorConfig = new CDxlConfig();
 
-    leftMotor->setSerialPort(serialPort);
-    rightMotor->setSerialPort(serialPort);
 
-    leftMotor->setConfig(leftMotorConfig->setID(106));
-    rightMotor->setConfig(rightMotorConfig->setID(107));
+    # leftMotor = new C3mxl();
+    # rightMotor = new C3mxl();
 
-    ROS_DEBUG("Init motors");
-    while(leftMotor->init(false) != DXL_SUCCESS)
-    {
-        ROS_ERROR("Failed to init left motor. Retrying.");
-        sleep(100);
-    }
+    # leftMotor->setSerialPort(serialPort);
+    # rightMotor->setSerialPort(serialPort);
 
-    while(rightMotor->init(false) != DXL_SUCCESS)
-    {
-        ROS_ERROR("Failed to init right motor. Retrying.");
-        sleep(100);
-    }
+    # leftMotor->setConfig(leftMotorConfig->setID(106));
+    # rightMotor->setConfig(rightMotorConfig->setID(107));
 
-    ROS_DEBUG("Set 3mxl mode to \"SPEED\"");
-    DXLC_SAFE_CALL(leftMotor->set3MxlMode(SPEED_MODE));
-    DXLC_SAFE_CALL(rightMotor->set3MxlMode(SPEED_MODE));
+    # ROS_DEBUG("Init motors");
+    # while(leftMotor->init(false) != DXL_SUCCESS)
+    # {
+    #     ROS_ERROR("Failed to init left motor. Retrying.");
+    #     sleep(100);
+    # }
 
-    ROS_DEBUG("Set acceleration");
-    DXLC_SAFE_CALL(leftMotor->setAcceleration(3));
-    DXLC_SAFE_CALL(rightMotor->setAcceleration(3));
+    # while(rightMotor->init(false) != DXL_SUCCESS)
+    # {
+    #     ROS_ERROR("Failed to init right motor. Retrying.");
+    #     sleep(100);
+    # }
+
+    # ROS_DEBUG("Set 3mxl mode to \"SPEED\"");
+    # DXLC_SAFE_CALL(leftMotor->set3MxlMode(SPEED_MODE));
+    # DXLC_SAFE_CALL(rightMotor->set3MxlMode(SPEED_MODE));
+
+    # ROS_DEBUG("Set acceleration");
+    # DXLC_SAFE_CALL(leftMotor->setAcceleration(3));
+    # DXLC_SAFE_CALL(rightMotor->setAcceleration(3));*/
 }
 
 /**

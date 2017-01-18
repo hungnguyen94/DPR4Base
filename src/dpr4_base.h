@@ -5,13 +5,15 @@
 #include <threemxl/C3mxlROS.h>
 #include <threemxl/C3mxl.h>
 #include <geometry_msgs/Twist.h>
+#include "spine_listener.h"
 
 class DPR4Base {
 private:
     C3mxl *leftMotor, *rightMotor;
     double wheelDiameter, wheelBase;
+    SpineListener *spineListener;
 public:
-    DPR4Base();
+    DPR4Base(ros::NodeHandle*);
     ~DPR4Base() {
         delete leftMotor;
         delete rightMotor;

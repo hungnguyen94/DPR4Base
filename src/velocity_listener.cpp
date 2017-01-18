@@ -12,7 +12,7 @@ int main(int argc, char** argv)
     ros::NodeHandle n;
     double updateRate = 50;
 
-    DPR4Base *base = new DPR4Base();
+    DPR4Base *base = new DPR4Base(&n);
     OdometryPublisher *odomPublisher = new OdometryPublisher(base, n);
     ros::Subscriber sub = n.subscribe("cmd_vel", 100, &DPR4Base::moveCallback, base);
 

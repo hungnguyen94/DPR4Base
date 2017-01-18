@@ -127,6 +127,7 @@ link_directories(${catkin_LIBRARY_DIRS})
 add_library(dpr4_base
   src/dpr4_base.cpp
   src/odometry_publisher.cpp
+  src/spine_listener.cpp
 )
 
 ## Add cmake target dependencies of the library
@@ -135,7 +136,7 @@ add_library(dpr4_base
 # add_dependencies(dpr4_base ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-add_executable(velocity_listener src/velocity_listener.cpp src/dpr4_base.cpp src/dpr4_base.h src/odometry_publisher.cpp src/odometry_publisher.h)
+add_executable(velocity_listener src/velocity_listener.cpp src/dpr4_base.cpp src/dpr4_base.h src/odometry_publisher.cpp src/odometry_publisher.h src/spine_listener.cpp src/spine_listener.h)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above

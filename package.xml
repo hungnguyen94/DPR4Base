@@ -49,6 +49,8 @@
   <run_depend>std_msgs</run_depend>
   <run_depend>threemxl</run_depend>
 
+  <build_depend>face_detection</build_depend>
+  <run_depend>face_detection</run_depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>

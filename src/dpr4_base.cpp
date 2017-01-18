@@ -66,6 +66,8 @@ DPR4Base::DPR4Base(ros::NodeHandle *nh)
     # ROS_DEBUG("Set acceleration");
     # DXLC_SAFE_CALL(leftMotor->setAcceleration(3));
     # DXLC_SAFE_CALL(rightMotor->setAcceleration(3));*/
+
+    ROS_INFO("END OF dpr4base consturcot");
 }
 
 /**

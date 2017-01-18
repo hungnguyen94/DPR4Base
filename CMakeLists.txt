@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   tf
   roslaunch
+  face_detection
 )
 
 ## System dependencies are found with CMake's conventions

@@ -26,33 +26,33 @@ SpineListener::SpineListener(ros::NodeHandle *nh, LxSerial *serialPort) {
     while(spineMotor->init(false) != DXL_SUCCESS)
     {
         ROS_ERROR("Failed to init spine motor. Retrying.");
-        sleep(100);
+        usleep(100*1000);
     }
 
     ROS_INFO("External init spine motor");
     DXLC_SAFE_CALL(spineMotor->set3MxlMode(EXTERNAL_INIT));
-    DXLC_SAFE_CALL(spineMotor->setSpeed(-10));
-    DXLC_SAFE_CALL(spineMotor->setAcceleration(5));
-    DXLC_SAFE_CALL(spineMotor->setTorque(-2));
-    // while(spineMotor->getStatus() != M3XL_STATUS_INIT_DONE) {
+    DXLC_SAFE_CALL(spineMotor->getStatus());
+    if(spineMotor->presentStatus() != M3XL_STATUS_INIT_DONE) {
+        DXLC_SAFE_CALL(spineMotor->setSpeed(-10));
+        DXLC_SAFE_CALL(spineMotor->setAcceleration(5));
+        DXLC_SAFE_CALL(spineMotor->setTorque(-2));
+    }
+    while(spineMotor->presentStatus() != M3XL_STATUS_INIT_DONE && ros::ok()) {
         ROS_INFO("Waiting for external init");
-        // std::cout << spineMotor->getStatus() << std::endl;
-        // std::cout << C3mxl::translateErrorCode(spineMotor->getStatus()) << std::endl;
-        sleep(15);
-        // std::cout << C3mxl::translateErrorCode(spineMotor->getStatus()) << std::endl;
-        
-    // }
+        std::cout << spineMotor->presentStatus() << std::endl;
+        usleep(1000*1000);
+        DXLC_SAFE_CALL(spineMotor->getStatus());
+    }
     ROS_INFO("Spine motor has been initialized");
     height = 0;
+    targetHeight = 0;
 
-    DXLC_SAFE_CALL(spineMotor->set3MxlMode(POSITION_MODE));
-    DXLC_SAFE_CALL(spineMotor->setLinearAcceleration(0.1));
-    DXLC_SAFE_CALL(spineMotor->setLinearSpeed(0.1));
-    ROS_INFO("Values have been set for spine motor");
-
+    DXLC_SAFE_CALL(spineListener->spineMotor->set3MxlMode(POSITION_MODE));
+    DXLC_SAFE_CALL(spineListener->spineMotor->setLinearAcceleration(0.1));
+    DXLC_SAFE_CALL(spineListener->spineMotor->setLinearSpeed(0.1));
 
     faceDetectionSub = nh->subscribe("face_detection", 1000, &faceDetectionCallback);
-    ROS_INFO("SUBSCRIBED");
+    ROS_INFO("Subscribed to /face_detection");
 }
 
 double SpineListener::getHeight() {
@@ -61,33 +61,54 @@ double SpineListener::getHeight() {
     return height;
 }
 
-void SpineListener::goToHeight(double targetHeight) {
-
+void SpineListener::goToHeight(double newTargetHeight) {
+    if(std::fabs(targetHeight - newTargetHeight) > 0.1) {
+        targetHeight = newTargetHeight;
+        ROS_INFO("GOING TO %f\n", targetHeight);
+        DXLC_SAFE_CALL(spineMotor->setLinearPos(newTargetHeight));
+    }
 }
 
 void SpineListener::faceDetectionCallback(const face_detection::FaceDetectionMsg::ConstPtr& msg) {
-    ROS_INFO("IN CALLBACK");
     bool looking = msg->looking;
     float height = msg->height;
+    height = height - 0.15;
     double currentHeight = spineListener->getHeight();
-    std::cout << looking << ", " << height << ", " << currentHeight;
-    ROS_INFO("%d, %f, %f\n", looking, height, currentHeight);
 
+    spineListener->spineMotor->getStatus();
+    spineListener->spineMotor->get3MxlMode();
 
     if (looking) {
         if(currentHeight + height < 0) {
-            ROS_INFO("GOING TO 0");
             // Go to lowest position
-            DXLC_SAFE_CALL(spineListener->spineMotor->setLinearPos(0));
+            spineListener->goToHeight(0);
         } else if(currentHeight + height > 0.43) {
-            ROS_INFO("GOING TO 0.43");
             // Go to heighest position
-            DXLC_SAFE_CALL(spineListener->spineMotor->setLinearPos(0.43));
+            spineListener->goToHeight(0.43);
         } else {
-            ROS_INFO("GOING TO %f\n", currentHeight+height);
             // Go to position
-            DXLC_SAFE_CALL(spineListener->spineMotor->setLinearPos(currentHeight + height));
+            spineListener->goToHeight(currentHeight + height);
         }
     }
 }
 
+void SpineListener::pollPosition() {
+    spineListener->spineMotor->getStatus();
+    spineListener->spineMotor->get3MxlMode();
+}
+
+void SpineListener::goToEndPosition() {
+    targetHeight = 0.02;
+    ROS_INFO("Going to end position");
+    DXLC_SAFE_CALL(spineMotor->setLinearPos(targetHeight));
+    do {
+        usleep(100*1000);
+        DXLC_SAFE_CALL(spineMotor->getStatus());
+    } while (spineMotor->presentStatus() == M3XL_STATUS_MOVING);
+}
+
+void SpineListener::goToMiddlePosition() {
+    targetHeight = 0.215;
+    ROS_INFO("GOING TO middle");
+    DXLC_SAFE_CALL(spineMotor->setLinearPos(targetHeight));
+}

@@ -10,6 +10,7 @@
 class SpineListener {
 private:
     double height;
+    double targetHeight;
     void static faceDetectionCallback(const face_detection::FaceDetectionMsg::ConstPtr&);
     ros::Subscriber faceDetectionSub;
 
@@ -20,5 +21,8 @@ public:
     C3mxl *spineMotor;
     double getHeight();
     void goToHeight(double);
+    void pollPosition();
+    void goToEndPosition();
+    void goToMiddlePosition();
 };
 #endif //SPINE_LISTENER_SPINELISTENER_H

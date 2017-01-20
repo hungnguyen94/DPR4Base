@@ -11,7 +11,6 @@ class DPR4Base {
 private:
     C3mxl *leftMotor, *rightMotor;
     double wheelDiameter, wheelBase;
-    SpineListener *spineListener;
 public:
     DPR4Base(ros::NodeHandle*);
     ~DPR4Base() {
@@ -27,6 +26,7 @@ public:
 
     double getWheelDiameter();
     double getWheelBase();
+    SpineListener *spineListener;
 };
 #endif //DPR4_BASE_DPR4_BASE_H
 

@@ -3,8 +3,8 @@
 #include <geometry_msgs/Twist.h>
 
 #include "dpr4_base.h"
+#include "spine_listener.h"
 #include "odometry_publisher.h"
-
 
 int main(int argc, char** argv)
 {
@@ -12,19 +12,20 @@ int main(int argc, char** argv)
     ros::NodeHandle n;
     double updateRate = 50;
 
-    ROS_INFO("HEre 0");
     DPR4Base *base = new DPR4Base(&n);
-    ROS_INFO("HEre 1");
-    // OdometryPublisher *odomPublisher = new OdometryPublisher(base, n);
-    ROS_INFO("HEre 2");
-    // ros::Subscriber sub = n.subscribe("cmd_vel", 100, &DPR4Base::moveCallback, base);
-    ROS_INFO("HEre 3");
+    OdometryPublisher *odomPublisher = new OdometryPublisher(base, n);
+    ros::Subscriber sub = n.subscribe("cmd_vel", 100, &DPR4Base::moveCallback, base);
 
     ros::Rate r(updateRate);
     while(n.ok()) {
         ros::spinOnce();
-        // odomPublisher->publishOdometry();
+        odomPublisher->publishOdometry();
+        base->spineListener->pollPosition();
         r.sleep();
     }
+
+    ROS_INFO("Shutting down");
+    base->spineListener->goToEndPosition();
+
     return 0;
 }

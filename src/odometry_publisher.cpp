@@ -16,7 +16,7 @@ OdometryPublisher::OdometryPublisher(DPR4Base *baseP, ros::NodeHandle n) {
 
     overflowPoint = 32.768;
     overflowThreshold = 50.0;
-    logging = true;
+    logging = false;
 
     lastTime = ros::Time::now();
     odom_pub = n.advertise<nav_msgs::Odometry>("odom", 50);
@@ -106,8 +106,6 @@ void OdometryPublisher::updateOdometry() {
     
     bool turnInPlace = false;
 
-    std::cout << "dRightPos: " << dRightPos << std::endl;
-
     // left overflow
     if (myAbs(leftPos - newLeftPos) > overflowThreshold) {
         if(leftPos > 0) {
@@ -126,15 +124,11 @@ void OdometryPublisher::updateOdometry() {
         }
     }
 
-    std::cout << "dRightPos: " << dRightPos << std::endl;
-    std::cout << "getWheelDiameter: " << base->getWheelDiameter();
-
     // Calculate distances
     leftPos = newLeftPos;
     rightPos = newRightPos;
     double dLeftDistance = dLeftPos * base->getWheelDiameter() / 2.0d;
     double dRightDistance = dRightPos * base->getWheelDiameter() / 2.0d;
-    std::cout << "dRightDistance: " << dRightDistance << std::endl;
     leftDistance += dLeftDistance;
     rightDistance += dRightDistance;
 

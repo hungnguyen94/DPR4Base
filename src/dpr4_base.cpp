@@ -33,41 +33,40 @@ DPR4Base::DPR4Base(ros::NodeHandle *nh)
     serialPort->set_speed(LxSerial::S921600);
 
     spineListener = new SpineListener(nh, serialPort);
-    /**CDxlConfig *leftMotorConfig = new CDxlConfig();
-    # CDxlConfig *rightMotorConfig = new CDxlConfig();
+    CDxlConfig *leftMotorConfig = new CDxlConfig();
+    CDxlConfig *rightMotorConfig = new CDxlConfig();
 
+    leftMotor = new C3mxl();
+    rightMotor = new C3mxl();
 
-    # leftMotor = new C3mxl();
-    # rightMotor = new C3mxl();
+    leftMotor->setSerialPort(serialPort);
+    rightMotor->setSerialPort(serialPort);
 
-    # leftMotor->setSerialPort(serialPort);
-    # rightMotor->setSerialPort(serialPort);
+    leftMotor->setConfig(leftMotorConfig->setID(106));
+    rightMotor->setConfig(rightMotorConfig->setID(107));
 
-    # leftMotor->setConfig(leftMotorConfig->setID(106));
-    # rightMotor->setConfig(rightMotorConfig->setID(107));
+    ROS_DEBUG("Init motors");
+    while(leftMotor->init(false) != DXL_SUCCESS)
+    {
+        ROS_ERROR("Failed to init left motor. Retrying.");
+        sleep(100);
+    }
 
-    # ROS_DEBUG("Init motors");
-    # while(leftMotor->init(false) != DXL_SUCCESS)
-    # {
-    #     ROS_ERROR("Failed to init left motor. Retrying.");
-    #     sleep(100);
-    # }
+    while(rightMotor->init(false) != DXL_SUCCESS)
+    {
+        ROS_ERROR("Failed to init right motor. Retrying.");
+        sleep(100);
+    }
 
-    # while(rightMotor->init(false) != DXL_SUCCESS)
-    # {
-    #     ROS_ERROR("Failed to init right motor. Retrying.");
-    #     sleep(100);
-    # }
+    ROS_DEBUG("Set 3mxl mode to \"SPEED\"");
+    DXLC_SAFE_CALL(leftMotor->set3MxlMode(SPEED_MODE));
+    DXLC_SAFE_CALL(rightMotor->set3MxlMode(SPEED_MODE));
 
-    # ROS_DEBUG("Set 3mxl mode to \"SPEED\"");
-    # DXLC_SAFE_CALL(leftMotor->set3MxlMode(SPEED_MODE));
-    # DXLC_SAFE_CALL(rightMotor->set3MxlMode(SPEED_MODE));
+    ROS_DEBUG("Set acceleration");
+    DXLC_SAFE_CALL(leftMotor->setAcceleration(3));
+    DXLC_SAFE_CALL(rightMotor->setAcceleration(3));
 
-    # ROS_DEBUG("Set acceleration");
-    # DXLC_SAFE_CALL(leftMotor->setAcceleration(3));
-    # DXLC_SAFE_CALL(rightMotor->setAcceleration(3));*/
-
-    ROS_INFO("END OF dpr4base consturcot");
+    ROS_INFO("End of dpr4base constructor");
 }
 
 /**

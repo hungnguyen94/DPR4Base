@@ -88,6 +88,13 @@ void DPR4Base::move(double linearX, double angularZ)
 
     ROS_INFO("DPR4 base -> set speed, leftVelocity: %f, rightVelocity: %f", leftSpeed, rightSpeed);
 
+    leftMotor->get3MxlMode();
+    rightMotor->get3MxlMode();
+    if(leftMotor->present3MxlMode() != SPEED_MODE)
+        leftMotor->set3MxlMode(SPEED_MODE);
+    if(rightMotor->present3MxlMode() != SPEED_MODE)
+        rightMotor->set3MxlMode(SPEED_MODE);
+
     DXLC_SAFE_CALL(leftMotor->setSpeed(leftSpeed));
     DXLC_SAFE_CALL(rightMotor->setSpeed(rightSpeed));
 }

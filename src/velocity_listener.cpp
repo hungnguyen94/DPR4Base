@@ -25,7 +25,7 @@ int main(int argc, char** argv)
     }
 
     ROS_INFO("Shutting down");
-    base->spineListener->goToEndPosition();
+    base->spineListener->goToEndPositionBlocking();
 
     return 0;
 }

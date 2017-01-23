@@ -52,6 +52,7 @@ SpineListener::SpineListener(ros::NodeHandle *nh, LxSerial *serialPort) {
     DXLC_SAFE_CALL(spineListener->spineMotor->setLinearSpeed(0.1));
 
     faceDetectionSub = nh->subscribe("face_detection", 1000, &faceDetectionCallback);
+    rbcStateSub = nh->subscribe("RBC/state", 1000, &rbcStateCallback);
     ROS_INFO("Subscribed to /face_detection");
 }
 
@@ -63,6 +64,10 @@ double SpineListener::getHeight() {
 
 void SpineListener::goToHeight(double newTargetHeight) {
     if(std::fabs(targetHeight - newTargetHeight) > 0.1) {
+        spineMotor->get3MxlMode();
+        if(spineMotor->present3MxlMode() != POSITION_MODE)
+            spineMotor->set3MxlMode(POSITION_MODE);
+
         targetHeight = newTargetHeight;
         ROS_INFO("GOING TO %f\n", targetHeight);
         DXLC_SAFE_CALL(spineMotor->setLinearPos(newTargetHeight));
@@ -92,12 +97,27 @@ void SpineListener::faceDetectionCallback(const face_detection::FaceDetectionMsg
     }
 }
 
+void SpineListener::rbcStateCallback(const std_msgs::String::ConstPtr& msg) {
+    std::string data = msg->data.c_str();
+    if(data.compare("DRIVING") == 0) {
+        spineListener->goToEndPosition();
+    } else if(data.compare("IDLE") == 0 || data.compare("INTERACTING") == 0) {
+        spineListener->goToMiddlePosition();
+    }
+}
+
 void SpineListener::pollPosition() {
     spineListener->spineMotor->getStatus();
     spineListener->spineMotor->get3MxlMode();
 }
 
 void SpineListener::goToEndPosition() {
+    targetHeight = 0.02;
+    ROS_INFO("Going to end position");
+    DXLC_SAFE_CALL(spineMotor->setLinearPos(targetHeight));
+}
+
+void SpineListener::goToEndPositionBlocking() {
     targetHeight = 0.02;
     ROS_INFO("Going to end position");
     DXLC_SAFE_CALL(spineMotor->setLinearPos(targetHeight));
